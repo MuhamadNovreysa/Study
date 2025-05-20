@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyGenius - AI-Powered Study Buddy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .preloader.fade-out {
+            opacity: 0;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--secondary);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        header.hide {
+            transform: translateY(-100%);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            bottom: -5px;
+            left: 0;
+            transition: width 0.3s;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(108, 92, 231, 0.8), rgba(162, 155, 254, 0.8));
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            animation: fadeInUp 1s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid var(--accent);
+            animation: fadeInUp 1s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .cta-button:hover {
+            background: transparent;
+            color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--dark);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .features-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary);
+            transition: height 0.3s;
+            z-index: -1;
+        }
+
+        .feature-card:hover::before {
+            height: 100%;
+        }
+
+        .feature-card i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .feature-card:hover i {
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .feature-card:hover h3 {
+            color: white;
+        }
+
+        .feature-card p {
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .feature-card:hover p {
+            color: white;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .dashboard-content {
+            animation: fadeInLeft 1s ease;
+        }
+
+        .dashboard-content h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-content p {
+            color: var(--dark);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .dashboard-image {
+            position: relative;
+            animation: fadeInRight 1s ease;
+        }
+
+        .dashboard-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: perspective(1000px) rotateY(15deg);
+            transition: transform 0.5s;
+        }
+
+        .dashboard-image:hover img {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        /* Study Planner */
+        .planner {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .planner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .planner-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 2rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .schedule-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .schedule-display {
+            margin-top: 2rem;
+        }
+
+        .schedule-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .schedule-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .schedule-info p {
+            color: #666;
+        }
+
+        .schedule-actions button {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+            transition: color 0.3s;
+        }
+
+        .schedule-actions button:hover {
+            color: #b71540;
+        }
+
+        /* AI Recommendations */
+        .recommendations {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .recommendations-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .recommendations .section-title h2,
+        .recommendations .section-title p {
+            color: white;
+        }
+
+        .recommendations .section-title::after {
+            background: var(--accent);
+        }
+
+        .ai-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .ai-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 2rem;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-card h3 i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+
+        .ai-card p {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-card .btn {
+            background: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .ai-card .btn:hover {
+            background: transparent;
+            color: var(--accent);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-slider {
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 0;
+        }
+
+        .testimonial-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .testimonial-slide {
+            min-width: 100%;
+            padding: 0 1rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card .quote {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .testimonial-card .quote::before,
+        .testimonial-card .quote::after {
+            content: '"';
+            font-size: 2rem;
+            color: var(--primary);
+            opacity: 0.5;
+        }
+
+        .testimonial-card .quote::before {
+            position: absolute;
+            top: -20px;
+            left: -10px;
+        }
+
+        .testimonial-card .quote::after {
+            position: absolute;
+            bottom: -40px;
+            right: -10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .testimonial-author img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+            border: 3px solid var(--primary);
+        }
+
+        .author-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .author-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            background: #ddd;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider-dot.active {
+            background: var(--primary);
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--primary);
+        }
+
+        .popular-tag {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-bottom-left-radius: 10px;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features li i {
+            color: var(--success);
+            margin-right: 10px;
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .accordion {
+            margin-top: 2rem;
+        }
+
+        .accordion-item {
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .accordion-header {
+            background: var(--light);
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: #e6e6e6;
+        }
+
+        .accordion-header h4 {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .accordion-icon {
+            font-size: 1.2rem;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        .accordion-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 1.5rem 2rem;
+            max-height: 500px;
+        }
+
+        .accordion-content p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Newsletter */
+        .newsletter {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .newsletter h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            font-size: 1rem;
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+        }
+
+        .newsletter-form button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 0 50px 50px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .newsletter-form button:hover {
+            background: #e84393;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 5rem 2rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-col h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 2px;
+            background: var(--accent);
+            bottom: -5px;
+            left: 0;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-col ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--accent);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 3rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .dashboard-image {
+                order: -1;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: var(--primary);
+                padding: 1rem;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+            }
+
+            nav.active {
+                transform: translateY(0);
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 0;
+                margin-bottom: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-form input {
+                border-radius: 50px;
+                margin-bottom: 1rem;
+            }
+
+            .newsletter-form button {
+                border-radius: 50px;
+                padding: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .features-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>StudyGenius</span>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#planner">Planner</a></li>
+                    <li><a href="#recommendations">AI Tips</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="floating-elements">
+            <div class="floating-element" style="width: 50px; height: 50px; left: 5%; animation-duration: 20s;"></div>
+            <div class="floating-element" style="width: 30px; height: 30px; left: 15%; animation-duration: 25s; animation-delay: -5s;"></div>
+            <div class="floating-element" style="width: 70px; height: 70px; left: 25%; animation-duration: 15s; animation-delay: -10s;"></div>
+            <div class="floating-element" style="width: 40px; height: 40px; left: 35%; animation-duration: 30s; animation-delay: -7s;"></div>
+            <div class="floating-element" style="width: 60px; height: 60px; left: 45%; animation-duration: 18s; animation-delay: -15s;"></div>
+            <div class="floating-element" style="width: 50px; height: 50px; left: 55%; animation-duration: 22s; animation-delay: -3s;"></div>
+            <div class="floating-element" style="width: 30px; height: 30px; left: 65%; animation-duration: 28s; animation-delay: -12s;"></div>
+            <div class="floating-element" style="width: 70px; height: 70px; left: 75%; animation-duration: 17s; animation-delay: -8s;"></div>
+            <div class="floating-element" style="width: 40px; height: 40px; left: 85%; animation-duration: 24s; animation-delay: -14s;"></div>
+            <div class="floating-element" style="width: 60px; height: 60px; left: 95%; animation-duration: 19s; animation-delay: -6s;"></div>
+        </div>
+        <div class="hero-content">
+            <h1>Your AI-Powered Study Buddy</h1>
+            <p>Smart scheduling, personalized recommendations, and productivity tracking to help you study smarter, not harder.</p>
+            <a href="#planner" class="cta-button">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Powerful Features</h2>
+            <p>StudyGenius combines artificial intelligence with proven study techniques to maximize your learning efficiency</p>
+        </div>
+        <div class="features-container">
+            <div class="feature-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Smart Scheduling</h3>
+                <p>Our AI creates the perfect study schedule based on your courses, deadlines, and personal preferences.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bell"></i>
+                <h3>Smart Reminders</h3>
+                <p>Never miss a study session or deadline with our intelligent notification system that adapts to your habits.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Progress Tracking</h3>
+                <p>Visualize your learning progress with detailed analytics and performance metrics.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-lightbulb"></i>
+                <h3>AI Recommendations</h3>
+                <p>Get personalized study techniques and resource suggestions based on your learning style.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Cross-Platform Sync</h3>
+                <p>Access your study plan anywhere, anytime with seamless synchronization across all your devices.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Study Groups</h3>
+                <p>Connect with classmates, share notes, and schedule group study sessions effortlessly.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard" id="dashboard">
+        <div class="dashboard-container">
+            <div class="dashboard-content">
+                <h2>Your Personalized Study Dashboard</h2>
+                <p>Our intelligent dashboard gives you a complete overview of your academic progress. Track your study hours, upcoming deadlines, and course performance all in one place. The more you use StudyGenius, the better it understands your patterns and can provide tailored recommendations.</p>
+                <p>Visualize your progress with interactive charts and graphs that show exactly where you're excelling and where you might need to focus</p>
+                                <p>Get real-time insights into your study habits and receive actionable suggestions to improve your learning efficiency.</p>
+                <a href="#planner" class="btn">Try It Now</a>
+            </div>
+            <div class="dashboard-image">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Study Dashboard">
+            </div>
+        </div>
+    </section>
+
+    <!-- Study Planner Section -->
+    <section class="planner" id="planner">
+        <div class="planner-container">
+            <div class="section-title">
+                <h2>Smart Study Planner</h2>
+                <p>Create your perfect study schedule in minutes with our AI-powered planner</p>
+            </div>
+            <div class="planner-tabs">
+                <button class="tab-btn active" data-tab="schedule">Schedule</button>
+                <button class="tab-btn" data-tab="tasks">Tasks</button>
+                <button class="tab-btn" data-tab="goals">Goals</button>
+            </div>
+            <div class="tab-content active" id="schedule">
+                <form class="schedule-form">
+                    <div class="form-group">
+                        <label for="course">Course/Subject</label>
+                        <input type="text" id="course" class="form-control" placeholder="e.g. Calculus 101">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Study Date</label>
+                        <input type="date" id="date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Study Time</label>
+                        <input type="time" id="time" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (minutes)</label>
+                        <input type="number" id="duration" class="form-control" placeholder="e.g. 60">
+                    </div>
+                    <div class="form-group">
+                        <label for="topic">Topic/Chapter</label>
+                        <input type="text" id="topic" class="form-control" placeholder="e.g. Derivatives">
+                    </div>
+                    <button type="submit" class="btn">Add to Schedule</button>
+                </form>
+                <div class="schedule-display">
+                    <h3>Your Study Schedule</h3>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Calculus 101 - Derivatives</h4>
+                            <p>Tomorrow at 14:00 - 60 minutes</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Physics 201 - Thermodynamics</h4>
+                            <p>Friday at 10:00 - 90 minutes</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Computer Science - Algorithms</h4>
+                            <p>Saturday at 16:00 - 120 minutes</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="tasks">
+                <form class="schedule-form">
+                    <div class="form-group">
+                        <label for="task-name">Task Name</label>
+                        <input type="text" id="task-name" class="form-control" placeholder="e.g. Complete math assignment">
+                    </div>
+                    <div class="form-group">
+                        <label for="due-date">Due Date</label>
+                        <input type="date" id="due-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-notes">Notes</label>
+                        <textarea id="task-notes" class="form-control" rows="3" placeholder="Any additional details..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Add Task</button>
+                </form>
+                <div class="schedule-display">
+                    <h3>Your Tasks</h3>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Complete math assignment (High Priority)</h4>
+                            <p>Due: Tomorrow | Chapter 4 problems</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-check"></i></button>
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Read history chapter (Medium Priority)</h4>
+                            <p>Due: Friday | Pages 120-150</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-check"></i></button>
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="goals">
+                <form class="schedule-form">
+                    <div class="form-group">
+                        <label for="goal-name">Goal Name</label>
+                        <input type="text" id="goal-name" class="form-control" placeholder="e.g. Achieve A in Calculus">
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-date">Target Date</label>
+                        <input type="date" id="goal-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-milestones">Milestones</label>
+                        <textarea id="goal-milestones" class="form-control" rows="3" placeholder="Break your goal into smaller steps..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Set Goal</button>
+                </form>
+                <div class="schedule-display">
+                    <h3>Your Goals</h3>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Achieve A in Calculus</h4>
+                            <p>Target: End of Semester | 3 milestones remaining</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-chart-line"></i></button>
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>Complete CS Project</h4>
+                            <p>Target: December 15 | 5 milestones remaining</p>
+                        </div>
+                        <div class="schedule-actions">
+                            <button><i class="fas fa-chart-line"></i></button>
+                            <button><i class="fas fa-edit"></i></button>
+                            <button><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Recommendations Section -->
+    <section class="recommendations" id="recommendations">
+        <div class="recommendations-container">
+            <div class="section-title">
+                <h2>AI-Powered Study Recommendations</h2>
+                <p>Get personalized study techniques based on your learning patterns and preferences</p>
+            </div>
+            <div class="ai-cards">
+                <div class="ai-card">
+                    <h3><i class="fas fa-stopwatch"></i> Time Management</h3>
+                    <p>Based on your schedule, we recommend the Pomodoro technique (25-min focus sessions with 5-min breaks) as it matches your typical study duration patterns.</p>
+                    <button class="btn">Apply This Method</button>
+                </div>
+                <div class="ai-card">
+                    <h3><i class="fas fa-book"></i> Active Recall</h3>
+                    <p>For your upcoming Calculus exam, active recall methods like flashcards or self-quizzing would be 37% more effective than passive reading based on your past performance.</p>
+                    <button class="btn">Create Flashcards</button>
+                </div>
+                <div class="ai-card">
+                    <h3><i class="fas fa-project-diagram"></i> Spaced Repetition</h3>
+                    <p>Your history course material is perfect for spaced repetition. We'll automatically schedule review sessions at optimal intervals to boost retention by up to 200%.</p>
+                    <button class="btn">Set Up Reviews</button>
+                </div>
+                <div class="ai-card">
+                    <h3><i class="fas fa-users"></i> Study Group</h3>
+                    <p>3 classmates are studying the same Physics chapter this week. Would you like to join their study session on Thursday at 4pm?</p>
+                    <button class="btn">Join Group</button>
+                </div>
+                <div class="ai-card">
+                    <h3><i class="fas fa-brain"></i> Focus Music</h3>
+                    <p>You're most productive with ambient sounds. Try our AI-generated focus playlist tailored to your concentration patterns during evening study sessions.</p>
+                    <button class="btn">Play Now</button>
+                </div>
+                <div class="ai-card">
+                    <h3><i class="fas fa-utensils"></i> Study Nutrition</h3>
+                    <p>Your energy dips around 3pm. We recommend a protein-rich snack 30 minutes before to maintain focus during your afternoon study block.</p>
+                    <button class="btn">See Recipes</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="testimonials-container">
+            <div class="section-title">
+                <h2>What Students Say</h2>
+                <p>Thousands of students have transformed their study habits with StudyGenius</p>
+            </div>
+            <div class="testimonial-slider">
+                <div class="testimonial-track">
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="quote">StudyGenius completely changed how I approach learning. The AI recommendations helped me discover study techniques I never would have tried on my own, and my grades improved by a full letter grade in just one semester!</p>
+                            <div class="testimonial-author">
+                                <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J.">
+                                <div class="author-info">
+                                    <h4>Sarah J.</h4>
+                                    <p>Computer Science Major, Stanford</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="quote">As a medical student, I was drowning in material until I found StudyGenius. The smart scheduling feature helped me allocate time efficiently, and the spaced repetition reminders ensured I actually retained what I studied.</p>
+                            <div class="testimonial-author">
+                                <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David K.">
+                                <div class="author-info">
+                                    <h4>David K.</h4>
+                                    <p>Medical Student, Johns Hopkins</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="quote">I went from barely passing to dean's list after using StudyGenius for 3 months. The progress tracking showed me exactly where I needed to improve, and the AI adapted perfectly to my chaotic work-study schedule.</p>
+                            <div class="testimonial-author">
+                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Maria L.">
+                                <div class="author-info">
+                                    <h4>Maria L.</h4>
+                                    <p>Business Major, NYU</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-nav">
+                <div class="slider-dot active"></div>
+                <div class="slider-dot"></div>
+                <div class="slider-dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="pricing-container">
+            <div class="section-title">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that works best for your academic journey</p>
+            </div>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Basic</h3>
+                    <div class="price">$0<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Basic Study Planner</li>
+                        <li><i class="fas fa-check"></i> 3 Study Reminders</li>
+                        <li><i class="fas fa-check"></i> Limited AI Recommendations</li>
+                        <li><i class="fas fa-check"></i> 1 Device Sync</li>
+                        <li><i class="fas fa-times"></i> Advanced Analytics</li>
+                        <li><i class="fas fa-times"></i> Priority Support</li>
+                    </ul>
+                    <button class="btn">Get Started</button>
+                </div>
+                <div class="pricing-card popular">
+                    <div class="popular-tag">Most Popular</div>
+                    <h3>Pro</h3>
+                    <div class="price">$9.99<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Advanced Study Planner</li>
+                        <li><i class="fas fa-check"></i> Unlimited Reminders</li>
+                        <li><i class="fas fa-check"></i> Full AI Recommendations</li>
+                        <li><i class="fas fa-check"></i> 3 Device Sync</li>
+                        <li><i class="fas fa-check"></i> Basic Analytics</li>
+                        <li><i class="fas fa-times"></i> Priority Support</li>
+                    </ul>
+                    <button class="btn">Get Pro</button>
+                </div>
+                <div class="pricing-card">
+                    <h3>Premium</h3>
+                    <div class="price">$14.99<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Premium Study Planner</li>
+                        <li><i class="fas fa-check"></i> Unlimited Reminders</li>
+                        <li><i class="fas fa-check"></i> Premium AI Recommendations</li>
+                        <li><i class="fas fa-check"></i> Unlimited Device Sync</li>
+                        <li><i class="fas fa-check"></i> Advanced Analytics</li>
+                        <li><i class="fas fa-check"></i> Priority Support</li>
+                    </ul>
+                    <button class="btn">Go Premium</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="faq-container">
+            <div class="section-title">
+                <h2>Frequently Asked Questions</h2>
+                <p>Find answers to common questions about StudyGenius</p>
+            </div>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h4>How does the AI create study schedules?</h4>
+                        <span class="accordion-icon">+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Our AI analyzes multiple factors including your course deadlines, personal schedule, historical performance data, and even your energy levels throughout the day (based on your input). It then applies proven time management and learning science principles to create an optimized schedule that adapts as your needs change.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h4>Is my data private and secure?</h4>
+                        <span class="accordion-icon">+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Absolutely. We use bank-grade encryption for all your data and never share your personal information with third parties. You own all your data and can delete it at any time. Our privacy-first approach means even our AI models run locally on your device when possible to maximize security.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h4>Can I use StudyGenius for group projects?</h4>
+                        <span class="accordion-icon">+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Yes! Our Pro and Premium plans include collaborative features that let you sync schedules with study partners, assign tasks, and even find optimal meeting times automatically. The AI can also suggest division of work based on each member's strengths and availability.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h4>How does the AI know which study methods work best for me?</h4>
+                        <span class="accordion-icon">+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Our system continuously analyzes your performance metrics (quiz scores, task completion rates, self-reported focus levels) to detect patterns. It compares these against thousands of data points from similar learners to recommend techniques with the highest probable effectiveness. The more you use StudyGenius, the more personalized the recommendations become.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h4>Can I integrate StudyGenius with my school's LMS?</h4>
+                        <span class="accordion-icon">+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Currently, we support integration with Canvas, Blackboard, and Moodle through our Premium plan. This allows automatic import of your syllabus, assignments, and deadlines. We're constantly adding support for more platforms based on user demand.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="newsletter-container">
+            <h2>Ready to Transform Your Study Habits?</h2>
+            <p>Join thousands of students who are studying smarter with StudyGenius</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Enter your email address">
+                <button type="submit">Get Started</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>StudyGenius</h3>
+                <p>AI-powered study assistant helping students achieve academic success through smart scheduling and personalized learning techniques.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Features</h3>
+                <ul>
+                    <li><a href="#">Smart Scheduling</a></li>
+                    <li><a href="#">AI Recommendations</a></li>
+                    <li><a href="#">Progress Tracking</a></li>
+                    <li><a href="#">Study Groups</a></li>
+                    <li><a href="#">Mobile Apps</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Study Techniques</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Research</a></li>
+                    <li><a href="#">Webinars</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 StudyGenius. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Preloader
+        window.addEventListener('load', function() {
+            const preloader = document.querySelector('.preloader');
+            setTimeout(() => {
+                preloader.classList.add('fade-out');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const nav = document.querySelector('nav');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            nav.classList.toggle('active');
+            this.innerHTML = nav.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (this.getAttribute('href') === '#') return;
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (nav.classList.contains('active')) {
+                        nav.classList.remove('active');
+                        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
+            });
+        });
+
+        // Header Hide/Show on Scroll
+        let lastScroll = 0;
+        const header = document.querySelector('header');
+
+        window.addEventListener('scroll', function() {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                header.classList.remove('hide');
+                return;
+            }
+            
+            if (currentScroll > lastScroll && !header.classList.contains('hide')) {
+                // Scroll down
+                header.classList.add('hide');
+            } else if (currentScroll < lastScroll && header.classList.contains('hide')) {
+                // Scroll up
+                header.classList.remove('hide');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Tab System for Study Planner
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                tabBtns.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Testimonial Slider
+        const track = document.querySelector('.testimonial-track');
+        const slides = Array.from(document.querySelectorAll('.testimonial-slide'));
+        const dots = Array.from(document.querySelectorAll('.slider-dot'));
+
+        let currentSlide = 0;
+        const slideWidth = slides[0].getBoundingClientRect().width;
+
+        // Set slide positions
+        slides.forEach((slide, index) => {
+            slide.style.left = `${slideWidth * index}px`;
+        });
+
+        // Move to slide function
+        function moveToSlide(index) {
+            track.style.transform = `translateX(-${slideWidth * index}px)`;
+            currentSlide = index;
+            
+            // Update dots
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[currentSlide].classList.add('active');
+        }
+
+        // Dot click event
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => moveToSlide(index));
+        });
+
+        // Auto slide
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            moveToSlide(currentSlide);
+        }, 5000);
+
+        // Accordion FAQ
+        const accordionItems = document.querySelectorAll('.accordion-item');
+
+        accordionItems.forEach(item => {
+            const header = item.querySelector('.accordion-header');
+            
+            header.addEventListener('click', function() {
+                const currentlyActive = document.querySelector('.accordion-item.active');
+                
+                // Close other open items
+                if (currentlyActive && currentlyActive !== item) {
+                    currentlyActive.classList.remove('active');
+                    currentlyActive.querySelector('.accordion-content').style.maxHeight = '0';
+                }
+                
+                // Toggle current item
+                item.classList.toggle('active');
+                const content = item.querySelector('.accordion-content');
+                
+                if (item.classList.contains('active')) {
+                    content.style.maxHeight = `${content.scrollHeight}px`;
+                } else {
+                    content.style.maxHeight = '0';
+                }
+            });
+        });
+
+        // Back to Top Button
+        const backToTopBtn = document.querySelector('.back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('active');
+            } else {
+                backToTopBtn.classList.remove('active');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Form Submission
+        const forms = document.querySelectorAll('form');
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // In a real app, you would handle form submission here
+                alert('Form submitted! In a real application, this would save your data.');
+                this.reset();
+            });
+        });
+
+        // Floating Elements Animation
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const count = 15;
+            
+            for (let i = 0; i < count; i++) {
+                const element = document.createElement('div');
+                element.classList.add('floating-element');
+                
+                const size = Math.random() * 40 + 20;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * -20;
+                
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${left}%`;
+                element.style.animationDuration = `${duration}s`;
+                element.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(element);
+            }
+        }
+
+        createFloatingElements();
+
+        // Animate elements on scroll
+        const animateOnScroll = function() {
+            const elements = document.querySelectorAll('.feature-card, .dashboard-content, .dashboard-image, .section-title');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (elementPosition < screenPosition) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        };
+
+        // Set initial state for animated elements
+        window.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.feature-card, .dashboard-content, .dashboard-image, .section-title');
+            
+            elements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+            
+            // Trigger first check
+            animateOnScroll();
+        });
+
+        window.addEventListener('scroll', animateOnScroll);
+    </script>
+</body>
+                                                                                                                                                        </html>
